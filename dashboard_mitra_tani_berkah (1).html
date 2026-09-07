@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Harga - Koperasi Produsen Mitra Tani Berkah</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Modern Scrollbar */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 99px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10b981;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-800 antialiased flex flex-col bg-gradient-to-br from-slate-100 via-emerald-50/30 to-teal-50/40 min-h-screen">
+
+    <!-- TOP NAVIGATION HEADER -->
+    <header class="bg-slate-900/95 text-white shadow-xl backdrop-blur-md sticky top-0 z-30 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <!-- Brand / Logo -->
+                <div class="flex items-center space-x-3.5">
+                    <div class="bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 p-3 rounded-2xl shadow-lg shadow-emerald-500/20 flex items-center justify-center transform hover:scale-105 transition-all">
+                        <i class="fa-solid fa-[#10b981] fa-wheat-awn text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">Mitra Tani Berkah</h1>
+                            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Pro</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium">Koperasi Produsen Sayuran Unggulan</p>
+                    </div>
+                </div>
+
+                <!-- Right Nav Controls -->
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <!-- Date Badge (Tanggal, Bulan, Tahun) -->
+                    <div class="flex items-center text-xs bg-slate-800/90 text-emerald-300 px-3.5 py-2 rounded-xl border border-slate-700/80 shadow-inner font-bold">
+                        <i class="fa-regular fa-calendar-check mr-2 text-emerald-400"></i>
+                        <span id="current-date-text">Senin, 7 September 2026</span>
+                    </div>
+
+                    <!-- Role Switcher (Admin vs Anggota) -->
+                    <div id="role-switcher-container" class="flex items-center bg-slate-800 p-1.5 rounded-2xl border border-slate-700/80 shadow-inner">
+                        <button id="btn-role-anggota" onclick="setRole('anggota')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20">
+                            <i class="fa-solid fa-user-group mr-1.5"></i>Anggota
+                        </button>
+                        <button id="btn-role-admin" onclick="attemptAdminAccess()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-all duration-300">
+                            <i class="fa-solid fa-user-shield mr-1.5"></i>Admin
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- COLORFUL HERO BANNER -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-700 text-white p-6 sm:p-8 shadow-2xl shadow-emerald-900/10 border border-emerald-500/20">
+            <div class="absolute -right-12 -bottom-16 w-64 h-64 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute right-1/3 -top-12 w-48 h-48 bg-emerald-300/20 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="space-y-2 max-w-2xl">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/15 backdrop-blur-md text-emerald-100 border border-white/20">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-ping mr-2"></span>
+                        Update Harga Hari Ini: <span id="banner-date" class="ml-1 text-white font-extrabold">7 September 2026</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
+                        Pantau Harga Sayur & Maksimalkan Bati Panen Anda
+                    </h2>
+                    <p class="text-emerald-50/90 text-xs sm:text-sm leading-relaxed font-medium">
+                        Sistem informasi komoditas terintegrasi untuk petani anggota Koperasi Produsen Mitra Tani Berkah. Cek harga pasar dan hitung potensi keuntungan panen secara presisi.
+                    </p>
+                </div>
+
+                <!-- Action Buttons: Berbeda antara Mode Admin dan Mode Anggota -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Tombol WA (Hanya Muncul di Mode Admin) -->
+                    <button id="btn-share-wa" onclick="shareToWhatsApp()" class="hidden bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-900 font-extrabold px-5 py-3 rounded-2xl text-xs sm:text-sm flex items-center shadow-lg shadow-emerald-900/30 transition-all transform active:scale-95">
+                        <i class="fa-brands fa-whatsapp text-lg mr-2 text-slate-900"></i>Bagikan ke WA Petani
+                    </button>
+
+                    <!-- Tombol Fitur Menarik Anggota (Hanya Muncul di Mode Anggota) -->
+                    <div id="member-action-buttons" class="flex items-center space-x-2">
+                        <button onclick="scrollToCalc()" class="bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 hover:to-orange-300 text-slate-900 font-extrabold px-4 py-3 rounded-2xl text-xs sm:text-sm flex items-center shadow-lg shadow-amber-900/20 transition-all transform active:scale-95">
+                            <i class="fa-solid fa-calculator text-base mr-2"></i>Kalkulator Bati Panen
+                        </button>
+                        <button onclick="printPriceList()" class="bg-white/15 hover:bg-white/25 text-white border border-white/20 px-4 py-3 rounded-2xl font-extrabold text-xs sm:text-sm flex items-center backdrop-blur-md transition-all active:scale-95">
+                            <i class="fa-solid fa-print text-base mr-2"></i>Cetak Harga
+                        </button>
+                    </div>
+
+                    <button onclick="refreshData()" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm flex items-center backdrop-blur-md transition-all active:scale-95">
+                        <i class="fa-solid fa-arrows-rotate mr-2" id="refresh-icon"></i>
+                        <span>Muat Ulang</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODERN STATS CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Card 1: Total Komoditas -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all group flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Komoditas</p>
+                    <p class="text-2xl font-extrabold text-slate-800 mt-1" id="stat-total-items">20 Item</p>
+                    <span class="text-xs text-emerald-600 font-bold inline-flex items-center mt-1">
+                        <i class="fa-solid fa-circle-check mr-1.5 text-[10px]"></i>Aktif Dipantau
+                    </span>
+                </div>
+                <div class="w-13 h-13 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+            </div>
+
+            <!-- Card 2: Kenaikan Tertinggi -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all group flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kenaikan Tertinggi</p>
+                    <p class="text-base font-extrabold text-slate-800 mt-1 truncate max-w-[140px]" id="stat-highest-item">Cabai Rawit Merah</p>
+                    <span class="text-xs text-emerald-600 font-extrabold inline-flex items-center mt-1 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60" id="stat-highest-val">
+                        <i class="fa-solid fa-arrow-trend-up mr-1"></i>+8.5%
+                    </span>
+                </div>
+                <div class="w-13 h-13 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-amber-500/30 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-fire"></i>
+                </div>
+            </div>
+
+            <!-- Card 3: Rerata Perubahan -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all group flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Rerata Perubahan</p>
+                    <p class="text-2xl font-extrabold text-slate-800 mt-1" id="stat-avg-change">+2.3%</p>
+                    <span class="text-xs text-indigo-600 font-bold inline-flex items-center mt-1">
+                        <i class="fa-solid fa-chart-line mr-1"></i>Tren Pasar Positif
+                    </span>
+                </div>
+                <div class="w-13 h-13 bg-gradient-to-tr from-indigo-500 to-violet-400 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/30 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+            </div>
+
+            <!-- Card 4: Jam Operational -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all group flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Layanan Penerimaan</p>
+                    <p class="text-base font-extrabold text-emerald-700 mt-1">Buka & Aktif</p>
+                    <span class="text-xs text-slate-500 font-semibold inline-flex items-center mt-1">
+                        <i class="fa-regular fa-clock mr-1"></i>08.00 - 16.00 WIB
+                    </span>
+                </div>
+                <div class="w-13 h-13 bg-gradient-to-tr from-teal-500 to-cyan-400 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-teal-500/30 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT GRID: TABLE & CALCULATOR -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- LEFT 2 COLS: TABEL HARGA SAYURAN -->
+            <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 shadow-lg shadow-slate-200/50 flex flex-col overflow-hidden">
+                
+                <!-- Table Header -->
+                <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/80">
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-lg flex items-center">
+                            <i class="fa-solid fa-leaf text-emerald-600 mr-2.5 text-xl"></i>Daftar Harga Sayuran Hari Ini
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5 font-medium">Patokan harga resmi tingkat petani di Koperasi Mitra Tani Berkah</p>
+                    </div>
+
+                    <!-- Search Input Box -->
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="search-input" onkeyup="filterItems()" placeholder="Cari nama komoditas..." class="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all">
+                    </div>
+                </div>
+
+                <!-- Admin Dynamic Notice Bar & Management Bar -->
+                <div id="admin-notice-bar" class="hidden bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-3 text-xs font-bold flex flex-wrap items-center justify-between gap-2 shadow-inner">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-pen-to-square text-sm"></i>
+                        <span>Mode Admin Aktif: Ubah harga harian, kelola akses, atau lihat laporan bulanan.</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <!-- Fitur Rekapan Bulanan/Tahunan untuk Admin -->
+                        <button onclick="openReportsModal()" class="bg-indigo-900/50 hover:bg-indigo-900/70 text-white border border-indigo-300/40 px-3 py-1.5 rounded-lg font-extrabold shadow-sm text-xs transition-all active:scale-95">
+                            <i class="fa-solid fa-file-excel mr-1"></i>Rekapan & Laporan
+                        </button>
+                        <button onclick="openShareModal()" class="bg-amber-900/40 hover:bg-amber-900/60 text-white border border-amber-300/40 px-3 py-1.5 rounded-lg font-extrabold shadow-sm text-xs transition-all active:scale-95">
+                            <i class="fa-solid fa-qrcode mr-1"></i>Akses Petani
+                        </button>
+                        <button onclick="saveAllPriceChanges()" class="bg-white text-amber-800 hover:bg-amber-50 px-3.5 py-1.5 rounded-lg font-extrabold shadow-sm text-xs transition-all active:scale-95">
+                            <i class="fa-solid fa-floppy-disk mr-1"></i>Simpan Perubahan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Body -->
+                <div class="overflow-x-auto flex-grow">
+                    <table class="w-full text-left border-collapse" id="printable-price-table">
+                        <thead>
+                            <tr class="border-b border-slate-200/80 bg-slate-100/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                <th class="py-3.5 px-5">Komoditas Sayur</th>
+                                <th class="py-3.5 px-4">Satuan</th>
+                                <th class="py-3.5 px-4 text-right">Harga Kemarin</th>
+                                <th class="py-3.5 px-4 text-right">Harga Hari Ini</th>
+                                <th class="py-3.5 px-4 text-center">Perubahan</th>
+                                <th class="py-3.5 px-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vegetables-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- Rows rendered via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs text-slate-500 font-medium">
+                    <span>Menampilkan <strong id="visible-count" class="text-slate-800">20</strong> dari 20 item</span>
+                    <span><i class="fa-regular fa-clock mr-1"></i>Pembaruan Terakhir: <strong id="footer-date-text">7 September 2026</strong></span>
+                </div>
+            </div>
+
+            <!-- RIGHT 1 COL: KALKULATOR BATI & GRAFIK TREN -->
+            <div class="space-y-6">
+
+                <!-- KALKULATOR BATI PETANI -->
+                <div id="calculator-card" class="bg-white rounded-3xl border border-slate-200/80 shadow-lg shadow-slate-200/50 p-6 space-y-5 relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-100/50 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div class="border-b border-slate-100 pb-3">
+                        <div class="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full mb-1">Simulasi Panen</div>
+                        <h3 class="font-extrabold text-slate-900 text-lg flex items-center">
+                            <i class="fa-solid fa-calculator text-emerald-600 mr-2.5"></i>Kalkulator Bati Petani
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5 font-medium">Estimasi pendapatan & laba bersih dijual ke koperasi.</p>
+                    </div>
+
+                    <form id="calc-form" onsubmit="event.preventDefault(); calculateBati();" class="space-y-4">
+                        <!-- Pilih Komoditas -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Komoditas Sayur</label>
+                            <select id="calc-item-select" onchange="calculateBati()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all shadow-sm">
+                                <!-- Dynamic Options -->
+                            </select>
+                        </div>
+
+                        <!-- Quantitas Panen (Kg) -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Perkiraan Hasil Panen (Kg)</label>
+                            <div class="relative">
+                                <input type="number" id="calc-weight" value="100" min="1" onkeyup="calculateBati()" onchange="calculateBati()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3.5 pr-10 py-2.5 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all shadow-sm" placeholder="100">
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Kg</span>
+                            </div>
+                        </div>
+
+                        <!-- Modal Usaha / Biaya Produksi per Kg -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Modal Produksi / Biaya (per Kg)</label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
+                                <input type="number" id="calc-cost" value="5000" min="0" step="500" onkeyup="calculateBati()" onchange="calculateBati()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all shadow-sm" placeholder="5000">
+                            </div>
+                            <span class="text-[10px] text-slate-400 font-medium">Estimasi benih, pupuk, perawatan & tenaga kerja.</span>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold py-3 rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center space-x-2 active:scale-95">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Hitung Analisis Keuntungan</span>
+                        </button>
+                    </form>
+
+                    <!-- HASIL KALKULASI DISPLAY -->
+                    <div id="calc-result" class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 space-y-3 shadow-md">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400 font-medium">Harga Beli Koperasi:</span>
+                            <span class="font-extrabold text-emerald-400" id="res-price-per-kg">Rp 0 / kg</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400 font-medium">Estimasi Pendapatan Kotor:</span>
+                            <span class="font-bold text-slate-200" id="res-total-revenue">Rp 0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400 font-medium">Total Modal Produksi:</span>
+                            <span class="font-bold text-rose-300" id="res-total-cost">Rp 0</span>
+                        </div>
+                        <div class="border-t border-slate-700/80 pt-2 flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-extrabold text-white">Estimasi Bati (Bersih):</span>
+                                <p class="text-[10px] text-emerald-300 font-semibold" id="res-roi-text">Margin: 0%</p>
+                            </div>
+                            <span class="text-lg font-black text-emerald-400" id="res-net-profit">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MINI GRAFIK TREN -->
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-lg shadow-slate-200/50 p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-extrabold text-slate-900 text-sm flex items-center">
+                            <i class="fa-solid fa-chart-line text-indigo-600 mr-2"></i>Grafik Pergerakan Harga
+                        </h3>
+                        <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">7 Hari</span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium" id="chart-item-label">Menampilkan tren harga Cabai Merah</p>
+                    <div class="h-44 w-full relative">
+                        <canvas id="priceTrendChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs space-y-2">
+            <p class="font-extrabold text-slate-200 text-sm">Koperasi Produsen Mitra Tani Berkah &copy; 2026</p>
+            <p class="text-slate-400">Sistem Informasi Harga Pasar Realtime & Perhitungan Keuntungan Petani</p>
+        </div>
+    </footer>
+
+    <!-- MODAL EDIT HARGA PER ITEM (ADMIN) -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 border border-slate-100 transform transition-all">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-slate-900 text-base flex items-center">
+                    <i class="fa-solid fa-pen-to-square text-amber-500 mr-2.5"></i>Update Harga Komoditas
+                </h3>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-all">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <input type="hidden" id="modal-item-id">
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Komoditas Sayur</label>
+                <input type="text" id="modal-item-name" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-extrabold text-slate-700">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Harga Kemarin (Rp)</label>
+                    <input type="number" id="modal-item-prev" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Harga Baru (Rp)</label>
+                    <input type="number" id="modal-item-price" step="100" class="w-full bg-white border border-amber-400 rounded-xl px-3.5 py-2 text-xs font-extrabold text-amber-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Satuan</label>
+                <input type="text" id="modal-item-unit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold">
+            </div>
+
+            <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                <button onclick="closeEditModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all">Batal</button>
+                <button onclick="saveModalPrice()" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-extrabold shadow-md shadow-amber-500/20 transition-all active:scale-95">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL REKAPAN BULANAN & TAHUNAN / EXPORT EXCEL (KHUSUS ADMIN) -->
+    <div id="reports-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-6 border border-slate-100 transform transition-all">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-slate-900 text-base flex items-center">
+                    <i class="fa-solid fa-file-excel text-emerald-600 mr-2.5"></i>Laporan Pergerakan Harga Bulanan & Tahunan
+                </h3>
+                <button onclick="closeReportsModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-all">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Filter Bulan & Tahun -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Bulan</label>
+                        <select id="report-month-select" onchange="generateReportData()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold">
+                            <option value="0">Januari</option>
+                            <option value="1">Februari</option>
+                            <option value="2">Maret</option>
+                            <option value="3">April</option>
+                            <option value="4">Mei</option>
+                            <option value="5">Juni</option>
+                            <option value="6">Juli</option>
+                            <option value="7">Agustus</option>
+                            <option value="8" selected>September</option>
+                            <option value="9">Oktober</option>
+                            <option value="10">November</option>
+                            <option value="11">Desember</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Tahun</label>
+                        <select id="report-year-select" onchange="generateReportData()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold">
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2027">2027</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Preview Ringkasan Rekapan -->
+                <div class="border border-slate-200 rounded-2xl overflow-hidden max-h-60 overflow-y-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-slate-100 font-bold text-slate-600 sticky top-0 border-b border-slate-200">
+                            <tr>
+                                <th class="p-2.5">Komoditas</th>
+                                <th class="p-2.5 text-right">Rerata Harga</th>
+                                <th class="p-2.5 text-right">Harga Terendah</th>
+                                <th class="p-2.5 text-right">Harga Tertinggi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-body" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tombol Action Unduh Excel -->
+            <div class="pt-3 flex justify-between items-center border-t border-slate-100">
+                <span class="text-[11px] text-slate-400 font-medium">*Format .csv siap dibuka langsung di Excel / Google Sheets</span>
+                <button onclick="exportToExcel()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-extrabold shadow-md shadow-emerald-600/20 transition-all flex items-center space-x-2 active:scale-95">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Unduh Excel (.CSV)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AKSES & QR CODE PETANI (FITUR ADMIN) -->
+    <div id="share-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6 border border-slate-100 transform transition-all">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-slate-900 text-base flex items-center">
+                    <i class="fa-solid fa-qrcode text-emerald-600 mr-2.5"></i>Bagikan Akses Khusus Anggota
+                </h3>
+                <button onclick="closeShareModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-all">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Tautan Langsung -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tautan Web Khusus Anggota (Kunci Tampilan Mode Anggota)</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="member-link-input" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-600 select-all">
+                        <button onclick="copyMemberLink()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center shrink-0 shadow-md shadow-emerald-600/20 active:scale-95 transition-all">
+                            <i class="fa-solid fa-copy mr-1.5"></i>Salin
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">Petani yang membuka link ini tidak akan melihat tombol/akses ke halaman Admin.</p>
+                </div>
+
+                <!-- Kode QR Cetak -->
+                <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <img id="qr-code-img" src="" alt="QR Code Akses Petani" class="w-32 h-32 rounded-lg">
+                    </div>
+                    <div class="space-y-1.5 text-center sm:text-left">
+                        <h4 class="font-extrabold text-slate-800 text-xs">Cetak / Tempel QR Code</h4>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">Pindai QR ini menggunakan kamera HP petani di papan pengumuman Koperasi untuk membuka dashboard harga secara instan.</p>
+                        <button onclick="window.print()" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-800 pt-1">
+                            <i class="fa-solid fa-print mr-1"></i>Cetak QR Code ini
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pengaturan Sandi Admin -->
+                <div class="border-t border-slate-100 pt-4 space-y-2">
+                    <label class="block text-xs font-bold text-slate-700">Atur PIN / Kata Sandi Admin (Opsional)</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="password" id="admin-pin-input" placeholder="Masukkan PIN baru (cth: 1234)" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <button onclick="saveAdminPIN()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs shrink-0 active:scale-95 transition-all">Simpan PIN</button>
+                    </div>
+                    <p class="text-[10px] text-slate-400">PIN diperlukan jika siapapun mencoba memindahkan mode dari Anggota ke Admin.</p>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end border-t border-slate-100">
+                <button onclick="closeShareModal()" class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-all">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PIN LOGIN ADMIN -->
+    <div id="pin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-100 transform transition-all text-center">
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-base">Akses Terkunci Admin</h3>
+                <p class="text-xs text-slate-500 mt-1">Masukkan PIN Admin untuk masuk ke halaman update harga.</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); verifyAdminPIN();" class="space-y-3">
+                <input type="password" id="input-verify-pin" placeholder="Masukkan PIN Admin" class="w-full text-center tracking-widest text-lg font-black bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500">
+                <div class="flex space-x-2">
+                    <button type="button" onclick="closePinModal()" class="w-1/2 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">Batal</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-extrabold rounded-xl text-xs shadow-md shadow-amber-500/20 transition-all">Verifikasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Data Initial 20 Komoditas
+        const initialVegetables = [
+            { id: 1, name: "Bawang Daun", unit: "Kg", prevPrice: 12000, price: 13500 },
+            { id: 2, name: "Buncis", unit: "Kg", prevPrice: 9000, price: 9500 },
+            { id: 3, name: "Cabai Hijau TW", unit: "Kg", prevPrice: 22000, price: 21000 },
+            { id: 4, name: "Cabai Keriting Hijau", unit: "Kg", prevPrice: 24000, price: 25000 },
+            { id: 5, name: "Cabai Keriting Merah", unit: "Kg", prevPrice: 38000, price: 42000 },
+            { id: 6, name: "Cabai Merah", unit: "Kg", prevPrice: 35000, price: 37500 },
+            { id: 7, name: "Cabai Rawit Hijau (Japlak)", unit: "Kg", prevPrice: 30000, price: 32000 },
+            { id: 8, name: "Cabai Rawit Merah (Domba)", unit: "Kg", prevPrice: 50000, price: 55000 },
+            { id: 9, name: "Kacang Panjang", unit: "Kg", prevPrice: 7000, price: 7500 },
+            { id: 10, name: "Lopang", unit: "Kg", prevPrice: 5000, price: 5000 },
+            { id: 11, name: "Pakcoy", unit: "Kg", prevPrice: 6000, price: 6500 },
+            { id: 12, name: "Pare (Paria)", unit: "Kg", prevPrice: 8000, price: 8000 },
+            { id: 13, name: "Sawi Hijau (Caosin)", unit: "Kg", prevPrice: 5500, price: 6000 },
+            { id: 14, name: "Terong Lalap", unit: "Kg", prevPrice: 6500, price: 7000 },
+            { id: 15, name: "Terong Ungu", unit: "Kg", prevPrice: 7500, price: 8000 },
+            { id: 16, name: "Tomat", unit: "Kg", prevPrice: 10000, price: 11500 },
+            { id: 17, name: "Kembang Kol", unit: "Kg", prevPrice: 14000, price: 15000 },
+            { id: 18, name: "Salada", unit: "Kg", prevPrice: 9000, price: 9000 },
+            { id: 19, name: "Ranti (Leunca)", unit: "Kg", prevPrice: 11000, price: 12000 },
+            { id: 20, name: "Jagung Manis", unit: "Kg", prevPrice: 6000, price: 6500 }
+        ];
+
+        let currentRole = 'anggota';
+        let vegetables = [];
+        let priceChart = null;
+        let isLockedMemberMode = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkURLParams();
+            loadData();
+            renderTable();
+            populateCalcSelect();
+            updateStats();
+            initChart();
+            
+            // Set Tanggal, Bulan, dan Tahun
+            const now = new Date();
+            const fullDateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const shortDateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            document.getElementById('current-date-text').textContent = fullDateStr;
+            document.getElementById('banner-date').textContent = shortDateStr;
+            document.getElementById('footer-date-text').textContent = shortDateStr;
+        });
+
+        function checkURLParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('view') === 'anggota') {
+                isLockedMemberMode = true;
+                const btnAdmin = document.getElementById('btn-role-admin');
+                if (btnAdmin) btnAdmin.classList.add('hidden');
+            }
+        }
+
+        function loadData() {
+            const savedData = localStorage.getItem('mitra_tani_prices');
+            if (savedData) {
+                vegetables = JSON.parse(savedData);
+            } else {
+                vegetables = [...initialVegetables];
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('mitra_tani_prices', JSON.stringify(vegetables));
+            saveHistoricalRecord();
+        }
+
+        // Menyimpan histori riwayat harga harian untuk laporan bulanan/tahunan
+        function saveHistoricalRecord() {
+            const now = new Date();
+            const recordKey = `mitra_tani_history_${now.getFullYear()}_${now.getMonth()}`;
+            let monthHistory = JSON.parse(localStorage.getItem(recordKey) || '[]');
+            
+            const todayDateStr = now.toISOString().split('T')[0];
+            const existingIdx = monthHistory.findIndex(h => h.date === todayDateStr);
+
+            const recordData = {
+                date: todayDateStr,
+                items: vegetables.map(v => ({ id: v.id, name: v.name, price: v.price }))
+            };
+
+            if (existingIdx >= 0) {
+                monthHistory[existingIdx] = recordData;
+            } else {
+                monthHistory.push(recordData);
+            }
+
+            localStorage.setItem(recordKey, JSON.stringify(monthHistory));
+        }
+
+        function attemptAdminAccess() {
+            const savedPIN = localStorage.getItem('mitra_tani_admin_pin');
+            if (savedPIN) {
+                document.getElementById('pin-modal').classList.remove('hidden');
+                document.getElementById('input-verify-pin').focus();
+            } else {
+                setRole('admin');
+            }
+        }
+
+        function verifyAdminPIN() {
+            const inputPIN = document.getElementById('input-verify-pin').value;
+            const savedPIN = localStorage.getItem('mitra_tani_admin_pin');
+
+            if (inputPIN === savedPIN) {
+                closePinModal();
+                setRole('admin');
+            } else {
+                alert("PIN Admin Salah!");
+            }
+        }
+
+        function closePinModal() {
+            document.getElementById('pin-modal').classList.add('hidden');
+            document.getElementById('input-verify-pin').value = '';
+        }
+
+        function setRole(role) {
+            if (isLockedMemberMode && role === 'admin') return;
+
+            currentRole = role;
+            const btnAnggota = document.getElementById('btn-role-anggota');
+            const btnAdmin = document.getElementById('btn-role-admin');
+            const adminNoticeBar = document.getElementById('admin-notice-bar');
+            const btnShareWa = document.getElementById('btn-share-wa');
+            const memberBtns = document.getElementById('member-action-buttons');
+
+            if (role === 'admin') {
+                btnAdmin.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all duration-300 bg-amber-500 text-white shadow-md shadow-amber-500/20";
+                btnAnggota.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold text-slate-400 hover:text-white transition-all duration-300";
+                adminNoticeBar.classList.remove('hidden');
+                btnShareWa.classList.remove('hidden');
+                memberBtns.classList.add('hidden');
+            } else {
+                btnAnggota.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all duration-300 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20";
+                if (btnAdmin) btnAdmin.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold text-slate-400 hover:text-white transition-all duration-300";
+                adminNoticeBar.classList.add('hidden');
+                btnShareWa.classList.add('hidden');
+                memberBtns.classList.remove('hidden');
+            }
+
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('vegetables-table-body');
+            const filterText = document.getElementById('search-input').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            let visibleCount = 0;
+
+            vegetables.forEach((item) => {
+                if (item.name.toLowerCase().includes(filterText)) {
+                    visibleCount++;
+                    const diff = item.price - item.prevPrice;
+                    const percent = item.prevPrice > 0 ? ((diff / item.prevPrice) * 100).toFixed(1) : 0;
+
+                    let badgeClass = "bg-slate-100 text-slate-600 border-slate-200";
+                    let iconClass = "fa-minus";
+                    let sign = "";
+
+                    if (diff > 0) {
+                        badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200/80";
+                        iconClass = "fa-arrow-up";
+                        sign = "+";
+                    } else if (diff < 0) {
+                        badgeClass = "bg-rose-50 text-rose-700 border-rose-200/80";
+                        iconClass = "fa-arrow-down";
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50/80 transition-colors border-b border-slate-100/80";
+
+                    tr.innerHTML = `
+                        <td class="py-3.5 px-5 font-bold text-slate-800 flex items-center space-x-2.5">
+                            <span class="w-2.5 h-2.5 rounded-full ${diff > 0 ? 'bg-emerald-500 shadow-sm shadow-emerald-500' : diff < 0 ? 'bg-rose-500 shadow-sm shadow-rose-500' : 'bg-slate-300'}"></span>
+                            <span>${item.name}</span>
+                        </td>
+                        <td class="py-3.5 px-4 text-xs font-semibold text-slate-500">/ ${item.unit}</td>
+                        <td class="py-3.5 px-4 text-right text-xs text-slate-400 font-bold">Rp ${formatNumber(item.prevPrice)}</td>
+                        <td class="py-3.5 px-4 text-right font-extrabold text-slate-900">
+                            ${currentRole === 'admin' 
+                                ? `<input type="number" value="${item.price}" step="100" onchange="updateInlinePrice(${item.id}, this.value)" class="w-28 text-right px-2.5 py-1 bg-amber-50 border border-amber-300 rounded-lg text-xs font-extrabold text-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500">`
+                                : `Rp ${formatNumber(item.price)}`
+                            }
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-extrabold border ${badgeClass}">
+                                <i class="fa-solid ${iconClass} text-[9px] mr-1.5"></i> ${sign}${percent}%
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            ${currentRole === 'admin' 
+                                ? `<button onclick="openEditModal(${item.id})" class="text-amber-600 hover:text-amber-800 p-2 rounded-xl hover:bg-amber-50 transition-all"><i class="fa-solid fa-pen"></i></button>`
+                                : `<button onclick="showTrend(${item.id})" class="text-indigo-600 hover:text-indigo-800 px-3 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 transition-all text-xs font-extrabold inline-flex items-center space-x-1"><i class="fa-solid fa-chart-line"></i><span>Tren</span></button>`
+                            }
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            document.getElementById('visible-count').textContent = visibleCount;
+        }
+
+        function filterItems() {
+            renderTable();
+        }
+
+        function updateInlinePrice(id, newPrice) {
+            const val = parseInt(newPrice) || 0;
+            const item = vegetables.find(v => v.id === id);
+            if (item) {
+                item.price = val;
+                saveData();
+                updateStats();
+                populateCalcSelect();
+            }
+        }
+
+        function saveAllPriceChanges() {
+            saveData();
+            renderTable();
+            updateStats();
+            alert("Semua harga komoditas berhasil diperbarui!");
+        }
+
+        function openEditModal(id) {
+            const item = vegetables.find(v => v.id === id);
+            if (!item) return;
+
+            document.getElementById('modal-item-id').value = item.id;
+            document.getElementById('modal-item-name').value = item.name;
+            document.getElementById('modal-item-prev').value = item.prevPrice;
+            document.getElementById('modal-item-price').value = item.price;
+            document.getElementById('modal-item-unit').value = item.unit;
+
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        function saveModalPrice() {
+            const id = parseInt(document.getElementById('modal-item-id').value);
+            const newPrice = parseInt(document.getElementById('modal-item-price').value) || 0;
+            const unit = document.getElementById('modal-item-unit').value;
+
+            const item = vegetables.find(v => v.id === id);
+            if (item) {
+                item.price = newPrice;
+                item.unit = unit;
+                saveData();
+                renderTable();
+                updateStats();
+                populateCalcSelect();
+                closeEditModal();
+            }
+        }
+
+        // MODAL REPORTS / REKAPAN BULANAN & TAHUNAN
+        function openReportsModal() {
+            document.getElementById('reports-modal').classList.remove('hidden');
+            generateReportData();
+        }
+
+        function closeReportsModal() {
+            document.getElementById('reports-modal').classList.add('hidden');
+        }
+
+        function generateReportData() {
+            const month = document.getElementById('report-month-select').value;
+            const year = document.getElementById('report-year-select').value;
+            
+            const recordKey = `mitra_tani_history_${year}_${month}`;
+            const history = JSON.parse(localStorage.getItem(recordKey) || '[]');
+
+            const tbody = document.getElementById('report-table-body');
+            tbody.innerHTML = '';
+
+            vegetables.forEach(veg => {
+                let avg = veg.price;
+                let min = veg.price;
+                let max = veg.price;
+
+                if (history.length > 0) {
+                    const priceList = [];
+                    history.forEach(day => {
+                        const found = day.items.find(i => i.id === veg.id);
+                        if (found) priceList.push(found.price);
+                    });
+
+                    if (priceList.length > 0) {
+                        const sum = priceList.reduce((a, b) => a + b, 0);
+                        avg = Math.round(sum / priceList.length);
+                        min = Math.min(...priceList);
+                        max = Math.max(...priceList);
+                    }
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold text-slate-800">${veg.name}</td>
+                    <td class="p-2.5 text-right font-semibold text-slate-700">Rp ${formatNumber(avg)}</td>
+                    <td class="p-2.5 text-right text-emerald-600 font-semibold">Rp ${formatNumber(min)}</td>
+                    <td class="p-2.5 text-right text-rose-600 font-semibold">Rp ${formatNumber(max)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function exportToExcel() {
+            const monthText = document.getElementById('report-month-select').options[document.getElementById('report-month-select').selectedIndex].text;
+            const yearText = document.getElementById('report-year-select').value;
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += `REKAPAN HARGA SAYURAN - KOPERASI MITRA TANI BERKAH\n`;
+            csvContent += `Periode: ${monthText} ${yearText}\n\n`;
+            csvContent += `No,Nama Komoditas,Satuan,Harga Saat Ini (Rp),Harga Kemarin (Rp),Status\n`;
+
+            vegetables.forEach((item, index) => {
+                const diff = item.price - item.prevPrice;
+                let status = "Stabil";
+                if (diff > 0) status = "Naik";
+                if (diff < 0) status = "Turun";
+
+                csvContent += `${index + 1},"${item.name}",${item.unit},${item.price},${item.prevPrice},${status}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Rekapan_Harga_MitraTani_${monthText}_${yearText}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function openShareModal() {
+            const baseUrl = window.location.href.split('?')[0];
+            const memberUrl = baseUrl + '?view=anggota';
+
+            document.getElementById('member-link-input').value = memberUrl;
+            
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(memberUrl)}`;
+            document.getElementById('qr-code-img').src = qrApiUrl;
+
+            const savedPIN = localStorage.getItem('mitra_tani_admin_pin') || '';
+            document.getElementById('admin-pin-input').value = savedPIN;
+
+            document.getElementById('share-modal').classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').classList.add('hidden');
+        }
+
+        function copyMemberLink() {
+            const copyText = document.getElementById('member-link-input');
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            alert("Tautan Khusus Anggota Berhasil Disalin!");
+        }
+
+        function saveAdminPIN() {
+            const pin = document.getElementById('admin-pin-input').value.trim();
+            if (pin) {
+                localStorage.setItem('mitra_tani_admin_pin', pin);
+                alert("PIN Admin berhasil disimpan!");
+            } else {
+                localStorage.removeItem('mitra_tani_admin_pin');
+                alert("PIN Admin berhasil dihapus.");
+            }
+        }
+
+        function scrollToCalc() {
+            document.getElementById('calculator-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function printPriceList() {
+            window.print();
+        }
+
+        function populateCalcSelect() {
+            const select = document.getElementById('calc-item-select');
+            select.innerHTML = '';
+            vegetables.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = `${item.name} (Rp ${formatNumber(item.price)} / ${item.unit})`;
+                select.appendChild(opt);
+            });
+            calculateBati();
+        }
+
+        function calculateBati() {
+            const itemId = parseInt(document.getElementById('calc-item-select').value);
+            const weight = parseFloat(document.getElementById('calc-weight').value) || 0;
+            const costPerKg = parseFloat(document.getElementById('calc-cost').value) || 0;
+
+            const item = vegetables.find(v => v.id === itemId);
+            if (!item) return;
+
+            const totalRevenue = item.price * weight;
+            const totalCost = costPerKg * weight;
+            const netProfit = totalRevenue - totalCost;
+            const roi = totalCost > 0 ? ((netProfit / totalCost) * 100).toFixed(1) : 0;
+
+            document.getElementById('res-price-per-kg').textContent = `Rp ${formatNumber(item.price)} / ${item.unit}`;
+            document.getElementById('res-total-revenue').textContent = `Rp ${formatNumber(totalRevenue)}`;
+            document.getElementById('res-total-cost').textContent = `Rp ${formatNumber(totalCost)}`;
+            document.getElementById('res-net-profit').textContent = `Rp ${formatNumber(netProfit)}`;
+            document.getElementById('res-roi-text').textContent = `Margin (ROI): ${roi}%`;
+
+            if (netProfit < 0) {
+                document.getElementById('res-net-profit').className = "text-lg font-black text-rose-400";
+            } else {
+                document.getElementById('res-net-profit').className = "text-lg font-black text-emerald-400";
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total-items').textContent = `${vegetables.length} Item`;
+
+            let maxDiffPercent = -Infinity;
+            let topItem = null;
+            let totalPercentSum = 0;
+
+            vegetables.forEach(item => {
+                const diff = item.price - item.prevPrice;
+                const percent = item.prevPrice > 0 ? (diff / item.prevPrice) * 100 : 0;
+                totalPercentSum += percent;
+
+                if (percent > maxDiffPercent) {
+                    maxDiffPercent = percent;
+                    topItem = item;
+                }
+            });
+
+            if (topItem && maxDiffPercent > -Infinity) {
+                document.getElementById('stat-highest-item').textContent = topItem.name;
+                document.getElementById('stat-highest-val').innerHTML = `<i class="fa-solid fa-arrow-trend-up mr-1"></i>+${maxDiffPercent.toFixed(1)}%`;
+            }
+
+            const avgChange = (totalPercentSum / vegetables.length).toFixed(1);
+            document.getElementById('stat-avg-change').textContent = `${avgChange >= 0 ? '+' : ''}${avgChange}%`;
+        }
+
+        function showTrend(id) {
+            const item = vegetables.find(v => v.id === id);
+            if (!item) return;
+
+            document.getElementById('chart-item-label').textContent = `Menampilkan tren harga ${item.name}`;
+
+            const basePrice = item.price;
+            const mockPrices = [
+                Math.round(basePrice * 0.92),
+                Math.round(basePrice * 0.94),
+                Math.round(basePrice * 0.91),
+                Math.round(basePrice * 0.96),
+                Math.round(basePrice * 0.98),
+                item.prevPrice,
+                item.price
+            ];
+
+            priceChart.data.datasets[0].label = item.name;
+            priceChart.data.datasets[0].data = mockPrices;
+            priceChart.update();
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('priceTrendChart').getContext('2d');
+            const defaultItem = vegetables.find(v => v.name.includes("Cabai Merah")) || vegetables[0];
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(79, 70, 229, 0.3)');
+            gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['H-6', 'H-5', 'H-4', 'H-3', 'H-2', 'Kemarin', 'Hari Ini'],
+                    datasets: [{
+                        label: defaultItem.name,
+                        data: [34000, 34500, 35000, 34800, 36000, defaultItem.prevPrice, defaultItem.price],
+                        borderColor: '#6366f1',
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#4f46e5',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value) { return 'Rp ' + (value/1000) + 'k'; },
+                                font: { size: 10, weight: 'bold' }
+                            },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            ticks: { font: { size: 10, weight: 'bold' } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function shareToWhatsApp() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            const baseUrl = window.location.href.split('?')[0];
+            const memberUrl = baseUrl + '?view=anggota';
+
+            let text = `*INFO HARGA SAYURAN HARI INI*\n`;
+            text += `*Koperasi Produsen Mitra Tani Berkah*\n`;
+            text += `Tanggal: ${dateStr}\n`;
+            text += `===============================\n\n`;
+
+            vegetables.forEach((item, index) => {
+                const diff = item.price - item.prevPrice;
+                let status = "➡️ (Stabil)";
+                if (diff > 0) status = `⬆️ (Naik Rp ${formatNumber(diff)})`;
+                if (diff < 0) status = `⬇️ (Turun Rp ${formatNumber(Math.abs(diff))})`;
+
+                text += `${index + 1}. *${item.name}*: Rp ${formatNumber(item.price)} / ${item.unit} ${status}\n`;
+            });
+
+            text += `\n===============================\n`;
+            text += `🌐 *Akses Dashboard Realtime Petani:*\n${memberUrl}\n\n`;
+            text += `_Harap konfirmasi ke admin koperasi sebelum pengiriman barang._\n`;
+            text += `*Mitra Tani Berkah - Maju Bersama Petani*`;
+
+            const encodedText = encodeURIComponent(text);
+            window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+        }
+
+        function refreshData() {
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('fa-spin');
+            setTimeout(() => {
+                loadData();
+                renderTable();
+                updateStats();
+                icon.classList.remove('fa-spin');
+            }, 500);
+        }
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+    </script>
+</body>
+</html>
